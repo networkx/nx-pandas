@@ -1,0 +1,130 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+    "setuptools>=64",
+    "setuptools-git-versioning",
+]
+
+[project]
+name = "nx-pandas"
+dynamic = ["version"]
+description = "Pandas backend for NetworkX"
+readme = { file = "README.md", content-type = "text/markdown" }
+authors = [
+    { name = "NetworkX Developers"},
+    { name = "NVIDIA Corporation" },
+]
+license = { text = "Apache 2.0" }
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3 :: Only",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "networkx>=3.2",
+    "numpy>=1.24",
+    "pandas>=1.5",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.2",
+    "pytest-cov>=4.0",
+    "pytest-mpl",
+    "networkx[default,extra,test]",
+]
+developer = [
+    "nx-pandas[test]",
+    "pre-commit>=3.2",
+]
+
+[project.urls]
+homepage = "https://github.com/networkx/nx-pandas"
+repository = "https://github.com/networkx/nx-pandas"
+# documentation = "..."
+
+[project.entry-points."networkx.backends"]
+pandas = "nx_pandas.interface:backend_interface"
+pandas_graph = "nx_pandas_graph.interface:backend_interface"
+
+[project.entry-points."networkx.backend_info"]
+# These import pandas when importing networkx!
+pandas = "nx_pandas._patch:get_info"
+pandas_graph = "nx_pandas_graph._get_info:get_info"
+
+[tool.setuptools]
+license-files = ["LICENSE"]
+
+[tool.setuptools.packages.find]
+include = [
+    "nx_pandas*",
+    "nx_pandas.*",
+    "nx_pandas_graph*",
+    "nx_pandas_graph.*",
+]
+
+[tool.setuptools-git-versioning]
+enabled = true
+dev_template = "{tag}+{ccount}.g{sha}"
+dirty_template = "{tag}+{ccount}.g{sha}.dirty"
+
+[tool.black]
+line-length = 88
+target-version = ["py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 88
+target-version = 'py310'
+
+[tool.ruff.lint.per-file-ignores]
+"nx_pandas*/**/__init__.py" = ["F401"]  # Allow unused imports (w/o defining `__all__`)
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = [
+    "nx_pandas/tests",
+    "nx_pandas_graph/tests",
+]
+xfail_strict = false
+markers = [
+    "slow: Skipped unless --runslow passed",
+]
+log_cli_level = "info"
+filterwarnings = [
+    # See: https://docs.python.org/3/library/warnings.html#describing-warning-filters
+    # and: https://docs.pytest.org/en/7.2.x/how-to/capture-warnings.html#controlling-warnings
+    # "error",
+]
+addopts = [
+    "--strict-config",  # Force error if config is mispelled
+    "--strict-markers",  # Force error if marker is mispelled (must be defined in config)
+    "-ra",  # Print summary of all fails/errors
+]
+
+[tool.coverage.run]
+branch = true
+source = [
+    "nx_pandas",
+    "nx_pandas_graph",
+]
+omit = []
+
+[tool.coverage.report]
+ignore_errors = false
+precision = 1
+fail_under = 0
+skip_covered = false  # Nice to see fully covered files
+skip_empty = true
+exclude_lines = [
+    "pragma: no cover",
+    "raise AssertionError",
+    "raise NotImplementedError",
+]
