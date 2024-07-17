@@ -1,5 +1,5 @@
 from nx_pandas_graph import classes
-from nx_pandas.interface import pandas_backend
+from nx_pandas.interface import backend_interface as pandas_backend
 
 
 class BackendInterface:
