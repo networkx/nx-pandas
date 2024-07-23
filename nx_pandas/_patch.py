@@ -99,6 +99,54 @@ class NxAccessor:
             attrs.remove("edge_key")
         return attrs
 
+    def set_properties(
+        self,
+        *,
+        source=None,
+        target=None,
+        edge_key=None,
+        is_directed=None,
+        is_multigraph=None,
+        cache_enabled=None,
+    ):
+        """Set many graph properties (i.e., ``df.nx`` attributes) at once.
+
+        Return the original DataFrame to allow method chaining. For example::
+
+        >>> df = pd.read_csv("my_data.csv").nx.set_properties(is_directed=False)
+
+        This is a bulk transaction, so either all given attributes will be updated,
+        or nothing will be set if there was an exception.
+        """
+        prev = {}
+        cur = {}
+        if source is not None:
+            prev["_source"] = self._source
+            cur["source"] = source
+        if target is not None:
+            prev["_target"] = self._target
+            cur["target"] = target
+        if is_directed is not None:
+            prev["is_directed"] = self.is_directed
+            cur["is_directed"] = is_directed
+        if is_multigraph is not None:
+            prev["is_multigraph"] = self.is_multigraph
+            cur["is_multigraph"] = is_multigraph
+        if edge_key is not None:
+            prev["_edge_key"] = self._edge_key
+            cur["edge_key"] = edge_key
+        if cache_enabled is not None:
+            prev["cache_enabled"] = self.cache_enabled
+            cur["cache_enabled"] = cache_enabled
+        try:
+            for attr, val in cur.items():
+                setattr(self, attr, val)
+        except Exception:
+            for attr, val in prev.items():
+                setattr(self, attr, val)
+            raise
+        return self._df
+
 
 def _attr_raise_if_invalid_graph(df, attr):
     try:

@@ -110,3 +110,39 @@ def test_set_attrs(df):
     df.nx.edge_key = None
     with pytest.raises(AttributeError, match="to be used as a networkx graph"):
         df.__networkx_backend__
+
+
+def test_set_properties(df):
+    df2 = df.nx.set_properties(
+        source="target",
+        target="source",
+        edge_key="foo",
+        is_directed=False,
+        is_multigraph=True,
+        cache_enabled=True,
+    )
+    assert df is df2
+    assert df.nx.source == "target"
+    assert df.nx.target == "source"
+    assert df.nx.edge_key == "foo"
+    assert df.nx.is_directed is False
+    assert df.nx.is_multigraph is True
+    assert df.nx.cache_enabled is True
+    with pytest.raises(
+        AttributeError, match="'edge_key' attribute only exists for multigraphs"
+    ):
+        df.nx.set_properties(
+            source="source",
+            target="target",
+            is_directed=True,
+            is_multigraph=False,
+            cache_enabled=False,
+            edge_key="BAD",
+        )
+    # Unchanged
+    assert df.nx.source == "target"
+    assert df.nx.target == "source"
+    assert df.nx.edge_key == "foo"
+    assert df.nx.is_directed is False
+    assert df.nx.is_multigraph is True
+    assert df.nx.cache_enabled is True
